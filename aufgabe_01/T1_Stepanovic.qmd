@@ -1,0 +1,168 @@
+---
+title: "Hierarchische Clusteranalyse"
+author: "Daniel Stepanovic"
+format: pdf
+editor: visual
+---
+
+# Ausgangssituation
+
+Ein Hardware-Onlineshop bietet seinen Kund:innen bei höherpreisigen Produkten die Möglichkeit, eine Ratenzahlung zu vereinbaren. Dabei kann die Laufzeit der Ratenzahlung flexibel gewählt werden. Um das Angebot kundenfreundlicher zu gestalten, soll analysiert werden, ob typische Gruppen (Cluster) von Kund:innen anhand ihrer gewählten Kreditlaufzeit und -höhe existieren.
+
+# Datenmanagement
+
+Die Daten wurden mit `read.table()` eingelesen:
+
+```{r}
+rohdaten = read.table("wi23b095.txt", sep = ";", header = TRUE)
+head(rohdaten)
+```
+
+Wir extrahieren die interessierenden Variablen **laufzeit** und **hoehe** und überprüfen, ob es Beobachtungseinheiten mit fehlenden Werten gibt. Außerdem bestimmen wir die Stichprobengröße:
+```{r}
+summary(rohdaten)
+nrow(rohdaten)
+```
+Die Zusammenfassung zeigt einen fehlenden Wert in der Spalte hoehe. Insgesamt enthält der Datensatz 36 Beobachtungen, eine davon unvollständig.
+
+```{r}
+daten = na.omit(rohdaten)
+nrow(daten)
+```
+Der bereinigte Datensatz umfasst nun 35 Beobachtungen.
+
+folgt......
+
+
+## Standardisierung
+
+Um Verzerrungen aufgrund unterschiedlicher Skalierungen zu vermeiden, werden die Variablen standardisiert:
+
+```{r}
+daten.s = scale(rohdaten_clean)
+```
+
+## Distanzmatrix
+
+Im nächsten Schritt berechnen wir die Distanzmatrix, die als 
+Input für den eigentlichen Clusteralgorithmus übergeben wird. Da 
+wir nur metrische Variablen verwenden, können wir das 
+voreingestellte Distanzmaß (Euklidische Distanz) beibehalten:
+
+```{r}
+distanz = dist(daten.s)
+```
+
+# Durchführung der hierarchischen Clusteranalyse
+
+Als Clustermethode verwenden wir agglomeratives hierarchisches 
+Clustering. Wir verwenden fünf verschiedene Methoden 
+(Zentroid-Methode, Single Linkage, Complete Linkage, Average 
+Linkage und Ward), deren Ergebnisse wir danach vergleichen wollen:
+
+```{r}
+hc.centroid <- hclust(distanz, method = "centroid")
+hc.single   <- hclust(distanz, method = "single")
+hc.complete <- hclust(distanz, method = "complete")
+hc.average  <- hclust(distanz, method = "average")
+hc.ward     <- hclust(distanz, method = "ward.D2")
+```
+
+Wir visualisieren die Fusionierungsschritte für alle fünf 
+Methoden mit Dendrogrammen und stellen diese dem Streudiagramm gegenüber:
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+
+op = par(mfrow = c(3, 2))
+plot(hc.centroid, main = "Zentroid-Methode")
+plot(hc.single, main = "Single Linkage")
+plot(hc.complete, main = "Complete Linkage")
+plot(hc.average, main = "Average Linkage")
+plot(hc.ward, main = "Ward-Methode")
+plot(rohdaten_clean, main = "Streudiagramm: Laufzeit vs. Kredithöhe")
+par(op)
+```
+
+Die Dendrogramme helfen uns dabei, über eine sinnvolle 
+Clusteranzahl zu entscheiden und die Zuordnungen der einzelnen 
+Beobachtungen zu den Clustern zu sehen.  
+
+- **Zentroid**: Heterogenität steigt bei wenigen Fusionen stark an. Eine 4er-Lösung erscheint sinnvoll.
+- **Single Linkage**: Viele kleine Fusionen – Gefahr von „Kettenbildung“. Eine 5er-Lösung wäre denkbar.
+- **Complete Linkage**: Deutlicher Sprung bei Reduktion auf drei Cluster – eine 3-Cluster-Lösung ist sinnvoll.
+- **Average Linkage**: Ähnlich zur Complete Linkage – spricht ebenfalls für 3 bis 4 Cluster.
+- **Ward**: Klarste Struktur, deutlicher Anstieg bei weniger als 3 Clustern. Spricht für eine 3-Cluster-Lösung.
+
+Allgemein lässt sich also Folgendes sagen: 
+......
+
+Clustervisualisierung mit Rechtecken (k = 3)
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+
+op <- par(mfrow = c(3, 2))
+plot(hc.centroid, main = "Zentroid-Methode")
+rect.hclust(hc.centroid, k = 3)
+
+plot(hc.single, main = "Single Linkage")
+rect.hclust(hc.single, k = 3)
+
+plot(hc.complete, main = "Complete Linkage")
+rect.hclust(hc.complete, k = 3)
+
+plot(hc.average, main = "Average Linkage")
+rect.hclust(hc.average, k = 3)
+
+plot(hc.ward, main = "Ward-Methode")
+rect.hclust(hc.ward, k = 3)
+
+plot(rohdaten_clean, main = "Laufzeit vs. Kredithöhe")
+par(op)
+
+```
+BESCHREIBUNG !!!
+
+### Agglomerative Koeffizienten
+
+```{r}
+library(cluster)
+methoden = c("single", "complete", "average", "ward.D2")
+sapply(methoden, function(m) coef(hclust(distanz, method = m)))
+```
+
+Beschreibung !!!
+
+```{r}
+rohdaten_clean$cluster = cutree(hc.ward, k = 3)
+```
+
+# Interpretation der Clusterlösung
+
+```{r}
+aggregate(rohdaten_clean[, c("laufzeit", "hoehe")], by = list(rohdaten_clean$cluster), mean)
+
+```
+
+Interpretation:
+
+Cluster 1: Niedrige Laufzeit (≈ 11 Monate), niedrige Kredithöhe (≈ 1.400 €) → "Kleine Anschaffungen"
+
+Cluster 2: Hohe Laufzeit (≈ 41 Monate), hohe Kredithöhe (≈ 9.000 €) → "Langfristige Finanzierungen"
+
+Cluster 3: Mittlere Laufzeit (≈ 24 Monate), mittlere Höhe (≈ 3.300 €) → "Standardkäufe"
+
+
+```{r}
+#| fig-height: 6
+#| out-width: 70%
+
+plot(silhouette(rohdaten_clean$cluster, distanz))
+
+```
+
