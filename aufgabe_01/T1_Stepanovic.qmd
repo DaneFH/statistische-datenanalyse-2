@@ -41,7 +41,9 @@ Um die unterschiedlichen Wertebereiche der zwei metrischen Variablen auszugleich
 ```{r}
 daten.s = scale(daten)
 ```
+
 \newpage
+
 ## Distanzmatrix
 
 Im nächsten Schritt berechnen wir die Distanzmatrix, die als Input für den eigentlichen Clusteralgorithmus übergeben wird. Da wir nur metrische Variablen verwenden, können wir das voreingestellte Distanzmaß (Euklidische Distanz) beibehalten:
@@ -79,18 +81,17 @@ plot(daten, main = "Streudiagramm: Laufzeit vs. Kredithöhe")
 par(op)
 ```
 
-Die fünf Dendrogramme zeigen die Ergebnisse hierarchischer Clusteranalysen mit unterschiedlichen Fusionskriterien. Rechts unten ist ein Streudiagramm dargestellt, das den Zusammenhang zwischen Laufzeit (x-Achse) und Kreditbetrag (y-Achse) visualisiert.
-\newpage
+Die fünf Dendrogramme zeigen die Ergebnisse hierarchischer Clusteranalysen mit unterschiedlichen Fusionskriterien. Rechts unten ist ein Streudiagramm dargestellt, das den Zusammenhang zwischen Laufzeit (x-Achse) und Kreditbetrag (y-Achse) visualisiert. \newpage
 
-- Die **Zentroid-Methode** zeigt einige markante Fusionen mit deutlichem Anstieg der Heterogenität. Besonders die Beobachtungen 3, 5 und 23 bleiben lange isoliert und werden erst sehr spät mit anderen Gruppen verschmolzen. Die Clusterstruktur wirkt insgesamt unausgewogen. Die Methode ist außerdem anfällig für Inversionen, was die Interpretation zusätzlich erschwert. Eine 3-Cluster-Lösung erscheint anhand des Dendrogramms am sinnvollsten, da sie die Ausreißergruppe (3, 5, 23) und (22, 29) klar von den übrigen Beobachtungen trennt und gleichzeitig eine interpretable Struktur erhält.
+-   Die **Zentroid-Methode** zeigt einige markante Fusionen mit deutlichem Anstieg der Heterogenität. Besonders die Beobachtungen 3, 5 und 23 bleiben lange isoliert und werden erst sehr spät mit anderen Gruppen verschmolzen. Die Clusterstruktur wirkt insgesamt unausgewogen. Die Methode ist außerdem anfällig für Inversionen, was die Interpretation zusätzlich erschwert. Eine 3-Cluster-Lösung erscheint anhand des Dendrogramms am sinnvollsten, da sie die Ausreißergruppe (3, 5, 23) und (22, 29) klar von den übrigen Beobachtungen trennt und gleichzeitig eine interpretable Struktur erhält.
 
-- Die **Single-Linkage-Methode** zeigt das typische Kettenverhalten: Viele Beobachtungen werden nacheinander verbunden, was auf eine geringe Trennschärfe hindeutet. Auffällige Fälle wie 3, 5 und 23 fusionieren sehr spät, was auf mögliche Ausreißer hinweist. Die Methode liefert keine klar abgegrenzten Gruppen, weshalb eine sinnvolle Clusterlösung nur schwer erkennbar ist. Eine 3-Cluster-Lösung wäre möglich.
+-   Die **Single-Linkage-Methode** zeigt das typische Kettenverhalten: Viele Beobachtungen werden nacheinander verbunden, was auf eine geringe Trennschärfe hindeutet. Auffällige Fälle wie 3, 5 und 23 fusionieren sehr spät, was auf mögliche Ausreißer hinweist. Die Methode liefert keine klar abgegrenzten Gruppen, weshalb eine sinnvolle Clusterlösung nur schwer erkennbar ist. Eine 3-Cluster-Lösung wäre möglich.
 
-- Die **Complete-Linkage-Methode** zeigt eine stabile und klar strukturierte Clusterlösung. Die Beobachtungen gruppieren sich auf ähnlicher Höhe, was für eine ausgewogene Struktur spricht. Auffällige Fälle wie 5, 23 und 3 bleiben lange isoliert. Eine 3-Cluster-Lösung erscheint hier am sinnvollsten, da sie die Hauptgruppen gut voneinander trennt und zugleich kompakte Cluster bildet.
+-   Die **Complete-Linkage-Methode** zeigt eine stabile und klar strukturierte Clusterlösung. Die Beobachtungen gruppieren sich auf ähnlicher Höhe, was für eine ausgewogene Struktur spricht. Auffällige Fälle wie 5, 23 und 3 bleiben lange isoliert. Eine 3-Cluster-Lösung erscheint hier am sinnvollsten, da sie die Hauptgruppen gut voneinander trennt und zugleich kompakte Cluster bildet.
 
-- Die **Average-Linkage-Methode** zeigt eine klare, aber weichere Struktur als Complete Linkage. Auch hier bleiben Beobachtungen wie 3, 5 und 23 lange eigenständig. Eine 3-Cluster-Lösung ist sinnvoll, da sich drei Hauptgruppen deutlich abgrenzen lassen, ohne die Struktur zu stark aufzubrechen.
+-   Die **Average-Linkage-Methode** zeigt eine klare, aber weichere Struktur als Complete Linkage. Auch hier bleiben Beobachtungen wie 3, 5 und 23 lange eigenständig. Eine 3-Cluster-Lösung ist sinnvoll, da sich drei Hauptgruppen deutlich abgrenzen lassen, ohne die Struktur zu stark aufzubrechen.
 
-- Die **Ward-Methode** zeigt eine klar strukturierte Clusterlösung mit deutlichem Anstieg der Heterogenität bei der Reduktion auf zwei Cluster. Ein Schnitt bei ca. Höhe 5 liefert eine sinnvolle 3-Cluster-Lösung: Eine Gruppe mit hohen Kreditbeträgen und langen Laufzeiten (z.B. 3, 5, 23), eine heterogene Mittelgruppe, und ein dritter Cluster mit kürzeren Laufzeiten und geringeren Kreditbeträgen. Die Gruppen sind gut getrennt und inhaltlich interpretierbar.
+-   Die **Ward-Methode** zeigt eine klar strukturierte Clusterlösung mit deutlichem Anstieg der Heterogenität bei der Reduktion auf zwei Cluster. Ein Schnitt bei ca. Höhe 5 liefert eine sinnvolle 3-Cluster-Lösung: Eine Gruppe mit hohen Kreditbeträgen und langen Laufzeiten (z.B. 3, 5, 23), eine heterogene Mittelgruppe, und ein dritter Cluster mit kürzeren Laufzeiten und geringeren Kreditbeträgen. Die Gruppen sind gut getrennt und inhaltlich interpretierbar.
 
 Das begleitende Streudiagramm der beiden Variablen laufzeit und hoehe zeigt bereits eine sichtbare Gruppierung in drei Bereiche: kurze Laufzeit mit niedriger Kredithöhe, mittlere Laufzeit mit mittlerem Betrag und lange Laufzeit mit hohen Kreditbeträgen. Besonders Beobachtungen mit hohen Werten in beiden Dimensionen heben sich klar ab und stützen die Entscheidung für eine 3-Cluster-Lösung.
 
@@ -157,6 +158,20 @@ Interpretation:
 
 **Cluster 3** liegt im mittleren Bereich mit durchschnittlicher Laufzeit von 26 Monaten und Kredithöhen von ca. 2.984 €. Hier handelt es sich vermutlich um Standardkredite für mittelgroße Investitionen mit mittlerer Laufzeit.
 
+Zusätzlich wurde ein Streudiagramm erzeugt, in dem die drei Cluster farblich dargestellt sind. Die Gruppierungen bestätigen die zuvor berechneten Zentroide:
+
+```{r}
+plot(daten$laufzeit, daten$hoehe,
+     col = daten$clust,
+     pch = 19,
+     xlab = "Laufzeit (Monate)",
+     ylab = "Kredithöhe (Euro)",
+     main = "Streudiagramm mit farblich eingezeichneten Clustern")
+legend("topleft", legend = paste("Cluster", 1:3), col = 1:3, pch = 19)
+```
+
+\newpage
+
 Abschließend überprüfen wir die Qualität der Clusterlösung mithilfe eines Silhouettenplots:
 
 ```{r}
@@ -165,8 +180,9 @@ Abschließend überprüfen wir die Qualität der Clusterlösung mithilfe eines S
 library(cluster)
 plot(silhouette(cutree(hc.ward, k = 3), distanz))
 ```
-- Insgesamt beträgt der durchschnittliche Silhouettenkoeffizient 0.51, die Clusterlösung weist somit eine mittelstarke Struktur auf.
-- Cluster 1 hat mit 0.67 den höchsten Durchschnittswert, das spricht für eine klar abgegrenzte und kompakte Gruppe. Die Zuordnungen in diesem Cluster sind weitgehend überzeugend.
-- Cluster 2 hat mit 0.51 ebenfalls eine akzeptable Struktur. Die Silhouettenhöhen sind hier etwas variabler, aber es gibt keine stark negativen Ausreißer.
-- Cluster 3 zeigt mit 0.36 den schwächsten Wert, die Struktur ist hier deutlich weniger kompakt, einige Beobachtungen (z.B. Nr. 27) liegen nahe an der Clustergrenze bzw. wurden nur schwach zugeordnet.
-- Es gibt eine leicht negative Silhouette (Beobachtung 27), was auf eine mögliche Fehlzuordnung hinweist, aber insgesamt bleibt die Qualität der Lösung noch akzeptabel.
+
+-   Insgesamt beträgt der durchschnittliche Silhouettenkoeffizient 0.51, die Clusterlösung weist somit eine mittelstarke Struktur auf.
+-   Cluster 1 hat mit 0.67 den höchsten Durchschnittswert, das spricht für eine klar abgegrenzte und kompakte Gruppe. Die Zuordnungen in diesem Cluster sind weitgehend überzeugend.
+-   Cluster 2 hat mit 0.51 ebenfalls eine akzeptable Struktur. Die Silhouettenhöhen sind hier etwas variabler, aber es gibt keine stark negativen Ausreißer.
+-   Cluster 3 zeigt mit 0.36 den schwächsten Wert, die Struktur ist hier deutlich weniger kompakt, einige Beobachtungen (z.B. Nr. 27) liegen nahe an der Clustergrenze bzw. wurden nur schwach zugeordnet.
+-   Es gibt eine leicht negative Silhouette (Beobachtung 27), was auf eine mögliche Fehlzuordnung hinweist, aber insgesamt bleibt die Qualität der Lösung noch akzeptabel.
