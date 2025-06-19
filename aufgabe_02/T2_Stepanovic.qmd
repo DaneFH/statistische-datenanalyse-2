@@ -180,7 +180,7 @@ Der Plot zeigt eine klare Trennung der drei Cluster ohne Überlappung.
 ## Silhouettenanalyse
 
 ```{r}
-#| fig.height: 6.5
+#| fig.height: 7
 #| fig.width: 8
 sil3 = silhouette(km3$cluster, dist(cluster_daten))
 plot(sil3, main = "Silhouettenplot (3 Gruppen)")
