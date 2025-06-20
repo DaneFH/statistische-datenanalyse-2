@@ -16,7 +16,7 @@ Ziel ist es, das optimale $k$ für den $k$-NN-Algorithmus zu bestimmen und die E
 Die Daten wurden mit `read.table()` eingelesen:
 
 ```{r}
-daten = read.table("wi23b095.txt", header = TRUE, sep = "|", na.strings = "NA")
+daten = read.table("wi23b095.txt", header = TRUE, sep = "|")
 daten_gesamt = nrow(daten)
 ```
 
@@ -28,7 +28,7 @@ daten$bam = factor(daten$bam, levels = c("nein", "ja"))
 
 ### Entfernen unvollständiger Beobachtungen
 
-Die Datei enthielt fehlende Werte in den Variablen bam, k05 und/oder einkommen. Diese unvollständigen Beobachtungen wurden entfernt, um die k-NN-Klassifikation korrekt durchführen zu können.
+Die Datei enthielt fehlende Werte in den Variablen bam, k05 und einkommen. Diese unvollständigen Beobachtungen wurden entfernt, um die k-NN-Klassifikation korrekt durchführen zu können.
 
 ```{r}
 daten = na.omit(daten[, c("bam", "k05", "einkommen")])
@@ -36,46 +36,61 @@ daten_bereinigt = nrow(daten)
 ```
 
 ```{r}
-cat("Stichprobengröße vor Bereinigung:", daten_gesamt, "\\n")
+cat("Stichprobengröße vor Bereinigung:", daten_gesamt, "\n")
 cat("Stichprobengröße nach Bereinigung:", daten_bereinigt)
 ```
+\newpage
 # Einfluss der Prädiktoren
 
 ### Einfluss der Kinderanzahl
 
 ```{r}
-daten$k05_faktor = factor(daten$k05)
-spineplot(bam ~ k05_faktor, data = daten,
-          main = "Erwerbstätigkeit nach Anzahl der Kinder (0–5 Jahre)")
+#| fig-height: 4
+spineplot(bam ~ k05, data = daten,
+          main = "Erwerbstätigkeit nach Kinderanzahl (0–5 Jahre)")
 ```
 
-Das Spineplot zeigt deutlich, dass der Anteil berufstätiger Frauen mit zunehmender Anzahl kleiner Kinder abnimmt. Während bei kinderlosen Frauen eine Erwerbstätigkeit häufiger ist, sinkt dieser Anteil bei Frauen mit einem oder zwei kleinen Kindern merklich. Der Anteil erwerbstätiger Frauen ist bei Müttern mit zwei kleinen Kindern besonders gering.
+Das Spineplot zeigt deutlich, dass der Anteil berufstätiger Frauen mit zunehmender Anzahl kleiner Kinder abnimmt. Während bei kinderlosen Frauen eine Erwerbstätigkeit häufiger ist, sinkt dieser Anteil bei Frauen mit einem oder zwei kleinen Kindern merklich. Der Anteil erwerbstätiger Frauen ist bei Müttern mit (einem/zwei) kleinen Kindern besonders gering.
 
-Die Balkenbreite ist in dieser Darstellung gleich, da die Kinderanzahl als kategoriale Variable behandelt wurde. So wird die Verteilung der Erwerbstätigkeit unabhängig von der Gruppengröße übersichtlich vergleichbar dargestellt.
+Die Balkenbreite zeigt die Häufigkeit der jeweiligen Kinderanzahl und macht die Gruppengrößen sichtbar.
+
+\newpage
 
 ### Einfluss des Familieneinkommens
 
 ```{r}
-# Einkommen in Kategorien einteilen
 daten$eink_grp = cut(daten$einkommen,
-                      breaks = c(0, 10000, 20000, 30000, 40000, 60000),
-                      labels = c("<10k", "10–20k", "20–30k", "30–40k", "40–60k"),
-                      include.lowest = TRUE)
+                     breaks = c(0, 10000, 20000, 30000, 40000, 60000),
+                     labels = c("<10k", "10–20k", "20–30k", "30–40k", "40–60k"),
+                     include.lowest = TRUE)
 
-# Spineplot mit kategorisiertem Einkommen
 spineplot(bam ~ eink_grp, data = daten,
           main = "Erwerbstätigkeit nach Einkommensgruppe")
 ```
-Das Diagramm zeigt den Zusammenhang zwischen dem Familieneinkommen (ohne Einkommen der Frau) und der Erwerbstätigkeit verheirateter Frauen. Dabei wurde das Einkommen in fünf Gruppen unterteilt. Es zeigt sich, dass bei niedrigem Einkommen (<10.000 €) der Anteil erwerbstätiger Frauen deutlich höher ist als bei hohem Einkommen. Mit zunehmendem Einkommen nimmt die Erwerbstätigkeit tendenziell ab. Besonders in der Einkommensgruppe von 30.000 bis 40.000 € ist der Anteil nicht erwerbstätiger Frauen am höchsten. Die Breite der Balken zeigt außerdem, wie viele Fälle in jeder Gruppe vorhanden sind in den höchsten Einkommensgruppen gibt es deutlich weniger Beobachtungen.
+
+Das Diagramm zeigt den Zusammenhang zwischen dem Familieneinkommen (ohne Einkommen der Frau) und der Erwerbstätigkeit verheirateter Frauen. Dabei wurde das Einkommen in fünf Kategorien gruppiert.
+
+Es ist erkennbar, dass bei niedrigem Familieneinkommen (unter 10.000€) der Anteil erwerbstätiger Frauen deutlich höher ist als bei mittleren oder hohen Einkommen. Mit steigendem Einkommen nimmt die Erwerbstätigkeit tendenziell ab. Besonders im Bereich von etwa 30.000 bis 40.000€ ist der Anteil nicht erwerbstätiger Frauen am höchsten.
+
+Die Breite der Balken spiegelt die Anzahl der Fälle in den jeweiligen Einkommensbereichen wider. In den höheren Einkommensgruppen gibt es deutlich weniger Beobachtungen, was die Interpretation dieser Gruppen einschränkt.
 
 ### Gemeinsamer Einfluss
 
 ```{r}
-plot(einkommen ~ k05, data = daten, col = bam,
-     main = "Erwerbstätigkeit in Abhängigkeit von Kinderanzahl und Einkommen",
-     pch = 16)
-legend("topright", legend = c("nicht erwerbstätig", "erwerbstätig"), col = 1:2, pch = 16)
+#| fig-height: 6
+#| fig-width: 10
+plot(jitter(k05) ~ einkommen, data = daten, col = ifelse(bam == "ja", "darkred", "darkgray"),
+     pch = 16, main = "Einkommen vs. Kinderanzahl (farbig nach Erwerbstätigkeit)",
+     xlab = "Einkommen", ylab = "Anzahl Kinder (0–5 Jahre)")
+legend("topright", legend = c("nicht erwerbstätig", "erwerbstätig"),
+       col = c("darkgray", "darkred"), pch = 16)
 ```
+
+Das Punktdiagramm zeigt den Zusammenhang zwischen Familieneinkommen (ohne Einkommen der Frau) und Anzahl der Kinder (0–5 Jahre), farblich codiert nach Erwerbstätigkeit.
+
+Es lässt sich erkennen, dass Frauen ohne Kinder häufiger berufstätig sind, insbesondere bei niedrigem Familieneinkommen. Mit zunehmender Kinderanzahl verschiebt sich das Verhältnis deutlich zugunsten der Nicht-Erwerbstätigkeit. Ab zwei kleinen Kindern treten erwerbstätige Frauen nur noch vereinzelt auf.
+
+Gleichzeitig ist auch ein leichter Trend sichtbar, dass Erwerbstätigkeit eher bei niedrigeren bis mittleren Einkommen vorkommt. In höheren Einkommensgruppen sind deutlich weniger Fälle vorhanden, was die Interpretierbarkeit einschränkt.
 
 # Klassifikation mit $k$-NN
 
@@ -91,47 +106,57 @@ y = daten$bam
 best.k = replicate(20, tune.gknn(y ~ ., data = data.frame(y, X), k = 1:5)$best.parameters$k)
 table(best.k)
 ```
+Zur Bestimmung des optimalen Parameters $k$ für das k-NN-Klassifikationsverfahren wurde das Modell 20 Mal mit Kreuzvalidierung getestet. In jedem Durchlauf wurde das beste $k$ im Bereich von 1 bis 5 bestimmt.
+
+Die Ergebnisse zeigen, dass in 13 von 20 Fällen ein Wert von $k = 5$ die beste Klassifikationsgüte erzielt hat. Der Wert $k = 4$ wurde 5-mal als optimal bestimmt, $k = 3$ nur 2-mal. Die kleineren Werte $k = 1$ und $k = 2$ lieferten in keinem Fall die beste Performance.
+
+Daraus lässt sich schließen, dass ein $k = 5$-Modell in dieser Stichprobe als stabil und geeignet angesehen werden kann und daher für die nachfolgende Klassifikation verwendet wird.
 
 ### Modellgüte
+
+Um die Qualität des verwendeten 5-NN-Modells genauer einschätzen zu können, wurde die Stichprobe zufällig in einen Trainings- und einen Testdatensatz (jeweils zwei Drittel zu einem Drittel) aufgeteilt. Die Modellgüte wurde anhand der Konfusionsmatrix und abgeleiteter Kennzahlen beurteilt:
 
 ```{r}
 library(caret)
 set.seed(4)
-
 n = nrow(daten)
 testind = sort(sample(n, size = floor(n / 3)))
-
-knn.mod = gknn(bam ~ k05 + einkommen, data = daten[-testind, ], k = 1)
+knn.mod = gknn(bam ~ k05 + einkommen, data = daten[-testind, ], k = 5)
 knn.pred = predict(knn.mod, daten[testind, ])
 confusionMatrix(knn.pred, ref = daten$bam[testind], mode = "prec_recall")
 ```
+\newpage
 
-### Bewertung für Kategorie "ja"
+- Accuracy liegt bei ca. 58%, was nur geringfügig über der No-Information-Rate (NIR = 54%) liegt. Das Modell ist damit nur leicht besser als reines Raten.
+- Der p-Wert für den Vergleich Accuracy > NIR beträgt 0,287 – somit ist das Ergebnis nicht signifikant.
+- Die Precision (Trefferquote für Klasse „nein“) liegt bei 66,7%, dass heißt, von allen als „nicht erwerbstätig“ klassifizierten Frauen sind etwa zwei Drittel korrekt vorhergesagt worden.
+- Der Recall beträgt 46,5%, d.h. nur knapp die Hälfte der tatsächlich nicht erwerbstätigen Frauen wurde vom Modell richtig erkannt.
+- Der F1-Score (Kompromiss aus Precision und Recall) liegt bei 54,8% und deutet auf eine mäßige Modellleistung hin.
+- Der Kappa-Wert liegt bei nur 0,182, was auf eine geringe Übereinstimmung zwischen Vorhersage und tatsächlicher Klasse hinweist (jenseits des Zufalls).
+- Die Balanced Accuracy von 59% zeigt, dass das Modell beide Klassen insgesamt nur schwach unterscheidet.
+
+# Vorhersage eines neuen Falls
+
+Nun wird die Erwerbstätigkeit einer verheirateten Frau mit 3 kleinen Kindern und einem Familieneinkommen (ohne ihr Einkommen) von 75.300€ mithilfe des zuvor bestimmten 5-NN-Modells vorhergesagt:
 
 ```{r}
-confusionMatrix(knn.pred, ref = daten$bam[testind], mode = "prec_recall", positive = "ja")
-```
-
-### Klassifikation eines neuen Falls
-
-```{r}
+# Neuer Fall
 neuer_fall = data.frame(k05 = 3, einkommen = 75300)
+
+# Vorhersage mit 5-NN
 vorhersage = predict(knn.mod, neuer_fall)
-cat("Vorhersage für neue Beobachtung:", as.character(vorhersage))
+vorhersage
 ```
+Das 5-NN-Modell sagt voraus, dass die verheiratete Frau mit 3 kleinen Kindern und einem hohen Familieneinkommen von 75.300 € nicht erwerbstätig ist.
+
+Das Ergebnis ist nachvollziehbar: Viele Frauen mit mehreren kleinen Kindern und hohem Einkommen arbeiten laut den Daten ebenfalls nicht. Das Modell erkennt diese Muster und nutzt sie für die Vorhersage.
 
 # Fazit
 
-- Die Variable bam ist nominalskaliert, da sie zwei Kategorien ohne natürliche Rangordnung enthält.
+Die k-NN-Analyse zeigt, dass die Erwerbstätigkeit verheirateter Frauen stark mit der Anzahl kleiner Kinder und dem Familieneinkommen zusammenhängt. Frauen mit mehr kleinen Kindern und höherem Einkommen sind deutlich seltener erwerbstätig.
 
-- Die ursprüngliche Stichprobe umfasste 265 Beobachtungen, von denen aufgrund fehlender Werte r daten_bereinigt vollständig für die Analyse verwendet werden konnten.
+Das Modell konnte mit einfachen Mitteln eine Vorhersage treffen, die zur Datenlage passt. Die Modellgüte ist jedoch nur mittelmäßig, was auf mögliche Einflüsse weiterer Variablen hinweist, die im Datensatz nicht enthalten sind.
 
-- Die Anzahl kleiner Kinder steht in negativem Zusammenhang mit der Erwerbstätigkeit.
-
-- Auch ein hohes Familieneinkommen (ohne das Einkommen der Frau) ist tendenziell mit geringerer Erwerbstätigkeit verbunden.
-
-- Das k-NN-Modell lieferte eine brauchbare Klassifikation. Der optimale Wert für $k$ wurde mithilfe wiederholter Kreuzvalidierung bestimmt.
-
-- Für den neuen Fall mit 3 kleinen Kindern und einem Familieneinkommen von 75.300 € ergibt sich folgende Vorhersage: r vorhersage
+Insgesamt eignet sich das k-NN-Verfahren in diesem Fall gut zur explorativen Analyse. Für präzisere Vorhersagen wäre jedoch ein erweitertes Modell mit mehr Einflussfaktoren sinnvoll.
 
 
