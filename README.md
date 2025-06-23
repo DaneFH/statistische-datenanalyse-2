@@ -3,11 +3,11 @@ Analysen und Übungsaufgaben aus dem Kurs "Statistische Datenanalyse 2" im 4. Se
 
 ## Inhalte
 
-- Aufgabe 1 - Eine Variable (kategorial oder metrisch)
-- Aufgabe 2 - Zwei kategoriale Variablen
-- Aufgabe 3 - Zwei metrische Variablen – Korrelation
-- Aufgabe 4 - Zwei metrische Variablen – Regression
-- Aufgabe 5 - Zeitreihenanalyse
+- Aufgabe 1 - Hierarchische Clusteranalyse
+- Aufgabe 2 - Nichthierarchische Clusteranalyse
+- Aufgabe 3 - k-Nearest Neighbors-Klassifikation
+- Aufgabe 4 - Naïve Bayes-Klassifikation
+- Aufgabe 5 - Performance-Evaluierung
 
 ---
 
