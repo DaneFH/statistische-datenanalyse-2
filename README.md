@@ -9,8 +9,8 @@ Analysen und Übungsaufgaben aus dem Kurs "Statistische Datenanalyse 2" im 4. Se
 - Aufgabe 4 - Naïve Bayes-Klassifikation
 - Aufgabe 5 - Performance-Evaluierung
 
----
-
 Alle Analysen, Auswertungen und Interpretationen wurden **eigenständig von mir erstellt**. 
+
+---
 
 > Erstellt im Rahmen des 4. Semesters BSc Wirtschaftsinformatik – Daniel Stepanovic
