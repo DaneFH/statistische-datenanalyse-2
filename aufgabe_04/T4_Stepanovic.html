@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Daniel Stepanovic">
+
+<title>t4_stepanovic</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="T4_Stepanovic_files/libs/clipboard/clipboard.min.js"></script>
+<script src="T4_Stepanovic_files/libs/quarto-html/quarto.js"></script>
+<script src="T4_Stepanovic_files/libs/quarto-html/popper.min.js"></script>
+<script src="T4_Stepanovic_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="T4_Stepanovic_files/libs/quarto-html/anchor.min.js"></script>
+<link href="T4_Stepanovic_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="T4_Stepanovic_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="T4_Stepanovic_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="T4_Stepanovic_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="T4_Stepanovic_files/libs/bootstrap/bootstrap-1bc8a17f135ab3d594c857e9f48e611b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Computerübung - Naïve Bayes-Klassiﬁkation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Daniel Stepanovic </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="ausgangssituation" class="level1">
+<h1>Ausgangssituation</h1>
+<p>In dieser Analyse soll untersucht werden, ob ein Unternehmen im vergangenen Jahr <strong>Gewinn</strong> oder <strong>Verlust</strong> gemacht hat durch das <strong>Alter des CEOs</strong> und den <strong>erzielten Umsatz</strong> prognostiziert werden kann.</p>
+<p>Enthalten sind folgende Variablen: - <code>ergebnis</code>: nominalskaliert (Kategorien: „Gewinn“, „Verlust“) - <code>alter</code>: ordinalskaliert (Kategorien: „bis 49 Jahre“ &lt; „50–64“ &lt; „65+“) - <code>umsatz</code>: ordinalskaliert (Kategorien: „&lt;5 Mrd.“ &lt; „5 bis &lt;10 Mrd.“ &lt; „≥ 10 Mrd.“)</p>
+<p>Ziel ist es: - eine <strong>deskriptive Analyse</strong> durchzuführen - ein <strong>Naïve-Bayes-Klassifikationsmodell</strong> zu erstellen - das Modell <strong>für beide Klassen getrennt zu evaluieren</strong> - und <strong>eine Vorhersage</strong> für den Fall <code>alter = bis 49 Jahre</code> und <code>umsatz = &gt;= 10 Mrd.</code> durchzuführen.</p>
+</section>
+<section id="datenmanagement" class="level1">
+<h1>Datenmanagement</h1>
+<p>Die Daten wurden mit <code>read.table()</code> eingelesen:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>daten <span class="ot">=</span> <span class="fu">read.table</span>(<span class="st">"wi23b095.txt"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>, <span class="at">sep=</span><span class="st">"|"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(daten)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ergebnis alter         umsatz
+1   Gewinn 50-64 5 bis &lt;10 Mrd.
+2   Gewinn 50-64 5 bis &lt;10 Mrd.
+3   Gewinn   65+        &lt;5 Mrd.
+4   Gewinn 50-64     &gt;= 10 Mrd.
+5   Gewinn 50-64        &lt;5 Mrd.
+6     &lt;NA&gt; 50-64     &gt;= 10 Mrd.</code></pre>
+</div>
+</div>
+<p>Prüfen auf fehlende Werte</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(daten)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    ergebnis           alter               umsatz  
+ Gewinn :78   50-64       :67   &lt;5 Mrd.       :33  
+ Verlust:12   65+         :12   &gt;= 10 Mrd.    :30  
+ NA's   : 5   bis 49 Jahre:13   5 bis &lt;10 Mrd.:29  
+              NA's        : 3   NA's          : 3  </code></pre>
+</div>
+</div>
+<p>In den Daten sind 11 unvollständige Daten enthalten, diese werden für die Analyse entfernt.</p>
+<p>Entfernung der fehlenden Werte</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>daten <span class="ot">=</span> <span class="fu">na.omit</span>(daten)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="absolute-häufigkeiten" class="level1">
+<h1>Absolute Häufigkeiten</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tab1 <span class="ot">=</span> <span class="fu">with</span>(daten, <span class="fu">table</span>(ergebnis, alter))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>mar.tab1 <span class="ot">=</span> <span class="fu">addmargins</span>(tab1)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>mar.tab1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         alter
+ergebnis  50-64 65+ bis 49 Jahre Sum
+  Gewinn     53  10           11  74
+  Verlust     9   0            2  11
+  Sum        62  10           13  85</code></pre>
+</div>
+</div>
+<ul>
+<li>74 von 85 Unternehmen machen Gewinn, nur 11 Verlust -&gt; starke Klassenungleichverteilung</li>
+<li>CEOs zwischen 50–64 Jahren führen am häufigsten Firmen (62 Fälle)</li>
+<li>In der Altersgruppe 65+ gibt es keine Verluste</li>
+<li>CEOs unter 49 Jahren haben 2 Verluste bei 11 Gewinnen, diese Gruppe ist jedoch klein (nur 13 Fälle)</li>
+</ul>
+<p>Alter scheint einen leichten Einfluss zu haben, vor allem da bei älteren CEOs keine Verluste auftreten.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tab2 <span class="ot">=</span> <span class="fu">with</span>(daten, <span class="fu">table</span>(ergebnis, umsatz))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mar.tab2 <span class="ot">=</span> <span class="fu">addmargins</span>(tab2)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>mar.tab2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         umsatz
+ergebnis  &lt;5 Mrd. &gt;= 10 Mrd. 5 bis &lt;10 Mrd. Sum
+  Gewinn       26         26             22  74
+  Verlust       5          2              4  11
+  Sum          31         28             26  85</code></pre>
+</div>
+</div>
+<ul>
+<li>Unternehmen mit höherem Umsatz (≥ 10 Mrd.) erzielen fast immer Gewinn (26 von 28 Fällen)</li>
+<li>Verluste treten häufiger bei niedrigem (&lt;5 Mrd.) oder mittlerem Umsatz (5–10 Mrd.) auf</li>
+<li>In der Kategorie &lt;5 Mrd.: 26 Gewinn, 5 Verlust</li>
+<li>In der Kategorie ≥10 Mrd.: 26 Gewinn, 2 Verlust</li>
+</ul>
+<p>Umsatz ist ein guter Prädiktor für das Ergebnis, je höher der Umsatz, desto größer die Gewinnwahrscheinlichkeit.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="bedingte-relative-häufigkeiten" class="level1">
+<h1>Bedingte relative Häufigkeiten</h1>
+<section id="einfluss-der-einzelnen-prädiktoren" class="level2">
+<h2 class="anchored" data-anchor-id="einfluss-der-einzelnen-prädiktoren">Einfluss der einzelnen Prädiktoren</h2>
+<p>Zuerst wird untersucht, wie sich das Alter der CEOs auf das Ergebnis auswirkt:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spineplot</span>(ergebnis <span class="sc">~</span> alter, <span class="at">data =</span> daten)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="T4_Stepanovic_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Bei CEOs der Gruppe „65+“ traten in der Stichprobe keine Verluste auf. Die Altersgruppe „50–64“ ist am häufigsten vertreten und enthält auch die meisten Verluste in absoluten Zahlen. Die Gruppe „bis 49 Jahre“ ist insgesamt kleiner, weist jedoch anteilig ebenfalls Verluste auf.</p>
+<div style="page-break-after: always;"></div>
+<p>Jetzt der Einfluss des Umsatzes:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spineplot</span>(ergebnis <span class="sc">~</span> umsatz, <span class="at">data =</span> daten)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fl">0.16</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="T4_Stepanovic_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">=</span> <span class="fu">table</span>(daten<span class="sc">$</span>ergebnis, daten<span class="sc">$</span>umsatz)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">prop.table</span>(tab, <span class="at">margin =</span> <span class="dv">2</span>)[<span class="st">"Verlust"</span>, ] <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       &lt;5 Mrd.     &gt;= 10 Mrd. 5 bis &lt;10 Mrd. 
+          16.1            7.1           15.4 </code></pre>
+</div>
+</div>
+<p>Die rote Linie markiert einen Verlustanteil von 16%. Die Kategorie „5 bis &lt;10 Mrd.“ liegt mit 15,4% knapp darunter und weist den höchsten relativen Verlustanteil auf. Die Kategorie „&lt;5 Mrd.“ liegt mit 16,1% fast genau auf der Linie, während „≥ 10 Mrd.“ mit 7,1% deutlich darunter liegt.</p>
+<p>Je höher der Umsatz, desto geringer ist tendenziell das Verlustrisiko. Umsatz ist somit ein starker und relevanter Prädiktor.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="gemeinsamer-einfluss-beider-prädiktoren" class="level2">
+<h2 class="anchored" data-anchor-id="gemeinsamer-einfluss-beider-prädiktoren">Gemeinsamer Einfluss beider Prädiktoren</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>tab3 <span class="ot">=</span> <span class="fu">with</span>(daten, <span class="fu">table</span>(alter, umsatz, ergebnis))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(tab3, <span class="at">margin =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>, , ergebnis = Gewinn
+
+              umsatz
+alter             &lt;5 Mrd. &gt;= 10 Mrd. 5 bis &lt;10 Mrd.
+  50-64        0.79166667 0.95238095     0.82352941
+  65+          1.00000000 1.00000000     1.00000000
+  bis 49 Jahre 1.00000000 0.83333333     0.80000000
+
+, , ergebnis = Verlust
+
+              umsatz
+alter             &lt;5 Mrd. &gt;= 10 Mrd. 5 bis &lt;10 Mrd.
+  50-64        0.20833333 0.04761905     0.17647059
+  65+          0.00000000 0.00000000     0.00000000
+  bis 49 Jahre 0.00000000 0.16666667     0.20000000</code></pre>
+</div>
+</div>
+<p>Der Gewinnanteil steigt mit dem Umsatz, besonders in der Altersgruppe „50–64“. In der Gruppe „65+“ treten keine Verluste auf, unabhängig vom Umsatz. Die gemeinsame Betrachtung zeigt deutlich, dass bestimmte Kombinationen aus Alter und Umsatz besonders gewinnträchtig sind.</p>
+<p>Dargestellt in einem Doubledecker-Plot:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vcd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Lade nötiges Paket: grid</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">doubledecker</span>(ergebnis <span class="sc">~</span> alter <span class="sc">+</span> umsatz, <span class="at">data =</span> daten)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="T4_Stepanovic_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In der Altersgruppe „65+“ treten praktisch keine Verluste auf, unabhängig vom Umsatz. In der Gruppe „50–64“ zeigen Unternehmen mit höheren Umsätzen („≥ 10 Mrd.“) deutlich geringere Verlustraten als solche mit mittleren oder niedrigen Umsätzen. Diese Unterschiede verdeutlichen den interaktiven Einfluss der beiden Prädiktoren Alter und Umsatz.</p>
+</section>
+</section>
+<section id="klassifikation-mit-naïve-bayes" class="level1">
+<h1>Klassifikation mit Naïve Bayes</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ind <span class="ot">=</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(daten), <span class="fl">0.7</span> <span class="sc">*</span> <span class="fu">nrow</span>(daten))</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>train <span class="ot">=</span> daten[ind, ]</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>test <span class="ot">=</span> daten[<span class="sc">-</span>ind, ]</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>modell <span class="ot">=</span> <span class="fu">naiveBayes</span>(ergebnis <span class="sc">~</span> alter <span class="sc">+</span> umsatz, <span class="at">data =</span> train)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>modell</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Naive Bayes Classifier for Discrete Predictors
+
+Call:
+naiveBayes.default(x = X, y = Y, laplace = laplace)
+
+A-priori probabilities:
+Y
+   Gewinn   Verlust 
+0.8644068 0.1355932 
+
+Conditional probabilities:
+         alter
+Y             50-64       65+ bis 49 Jahre
+  Gewinn  0.6666667 0.1372549    0.1960784
+  Verlust 0.7500000 0.0000000    0.2500000
+
+         umsatz
+Y           &lt;5 Mrd. &gt;= 10 Mrd. 5 bis &lt;10 Mrd.
+  Gewinn  0.3333333  0.3725490      0.2941176
+  Verlust 0.2500000  0.2500000      0.5000000</code></pre>
+</div>
+</div>
+<p>Die A-priori-Wahrscheinlichkeiten zeigen, dass der Großteil der Unternehmen Gewinne erzielt (ca. 86%) und nur ca. 14% Verluste ausweist.</p>
+<p>Bei den bedingten Wahrscheinlichkeiten erkennt man: - In der Altersgruppe „65+“ treten keine Verluste auf (Verlust-Wahrscheinlichkeit = 0) - CEOs im Alter 50–64 haben eine vergleichsweise höhere Wahrscheinlichkeit für Verluste (ca. 75%) - In der Gruppe bis 49 Jahre ist der Verlustanteil bei 25%</p>
+<p>Beim Umsatz: - Unternehmen mit „&lt;5 Mrd.“ Umsatz zeigen eine Verlustwahrscheinlichkeit von 25% - Bei „≥ 10 Mrd.“ sinkt diese auf 25% - „5 bis &lt;10 Mrd.“ weisen die höchste Verlustwahrscheinlichkeit auf (50%)</p>
+</section>
+<section id="performance-evaluierung" class="level1">
+<h1>Performance-Evaluierung</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">=</span> <span class="fu">predict</span>(modell, test)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Lade nötiges Paket: ggplot2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Lade nötiges Paket: lattice</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(pred, test<span class="sc">$</span>ergebnis, <span class="at">mode =</span> <span class="st">"prec_recall"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction Gewinn Verlust
+   Gewinn      23       3
+   Verlust      0       0
+                                          
+               Accuracy : 0.8846          
+                 95% CI : (0.6985, 0.9755)
+    No Information Rate : 0.8846          
+    P-Value [Acc &gt; NIR] : 0.6475          
+                                          
+                  Kappa : 0               
+                                          
+ Mcnemar's Test P-Value : 0.2482          
+                                          
+              Precision : 0.8846          
+                 Recall : 1.0000          
+                     F1 : 0.9388          
+             Prevalence : 0.8846          
+         Detection Rate : 0.8846          
+   Detection Prevalence : 1.0000          
+      Balanced Accuracy : 0.5000          
+                                          
+       'Positive' Class : Gewinn          
+                                          </code></pre>
+</div>
+</div>
+<p>Das Modell erzielt eine Accuracy (Trefferquote) von 88%, was zunächst sehr hoch wirkt. Allerdings liegt die No Information Rate (NIR) ebenfalls bei 88%, was bedeutet, dass ein Modell, das immer „Gewinn“ vorhersagt, eine ähnliche Genauigkeit erreichen würde.</p>
+<ul>
+<li>Der Recall (Wiederfindungsrate) für „Gewinn“ beträgt 100%. Das heißt, alle tatsächlichen Gewinn-Unternehmen im Testdatensatz wurden korrekt erkannt</li>
+<li>Die Precision für „Gewinn“ liegt bei 88%, was bedeutet, dass 88% der als „Gewinn“ vorhergesagten Unternehmen tatsächlich Gewinne erzielt haben</li>
+<li>Der F1-Wert, der Precision und Recall kombiniert, liegt mit 0.94 ebenfalls sehr hoch</li>
+</ul>
+<p>Problematisch ist jedoch, dass keine Verluste erkannt wurden (alle drei Verluste wurden als Gewinn klassifiziert). Dies zeigt sich in der Balanced Accuracy, die nur 50% beträgt.</p>
+<p>Insgesamt lässt sich festhalten: Das Modell ist stark auf die dominante Klasse „Gewinn“ fokussiert und erkennt Gewinne sehr zuverlässig, während Verluste systematisch übersehen werden. Das ist eine direkte Folge der unbalancierten Datenverteilung (viele Gewinne, wenige Verluste).</p>
+<section id="modellbewertung-verlust" class="level2">
+<h2 class="anchored" data-anchor-id="modellbewertung-verlust">Modellbewertung: Verlust</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(pred, test<span class="sc">$</span>ergebnis, <span class="at">mode =</span> <span class="st">"prec_recall"</span>, <span class="at">positive =</span> <span class="st">"Verlust"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction Gewinn Verlust
+   Gewinn      23       3
+   Verlust      0       0
+                                          
+               Accuracy : 0.8846          
+                 95% CI : (0.6985, 0.9755)
+    No Information Rate : 0.8846          
+    P-Value [Acc &gt; NIR] : 0.6475          
+                                          
+                  Kappa : 0               
+                                          
+ Mcnemar's Test P-Value : 0.2482          
+                                          
+              Precision :     NA          
+                 Recall : 0.0000          
+                     F1 :     NA          
+             Prevalence : 0.1154          
+         Detection Rate : 0.0000          
+   Detection Prevalence : 0.0000          
+      Balanced Accuracy : 0.5000          
+                                          
+       'Positive' Class : Verlust         
+                                          </code></pre>
+</div>
+</div>
+<p>Wenn „Verlust“ als positive Klasse betrachtet wird, zeigt sich die Schwäche des Modells sehr deutlich:</p>
+<ul>
+<li>Der Recall (Wiederfindungsrate) für Verluste beträgt 0%, d.h. kein einziger tatsächlicher Verlustfall wurde erkannt</li>
+<li>Die Precision ist nicht definiert (NA), da das Modell niemals „Verlust“ vorhersagt (es gibt keine Vorhersagen für diese Klasse)</li>
+<li>Der F1-Wert kann deshalb ebenfalls nicht berechnet werden (NA)</li>
+<li>Die Balanced Accuracy beträgt nur 50%, was einem Zufallsniveau entspricht</li>
+</ul>
+<p>Fazit: Das Modell ist völlig ungeeignet, um Verluste vorherzusagen. Es klassifiziert alle Beobachtungen als „Gewinn“, was ein typisches Problem bei stark unbalancierten Daten ist (hier: sehr wenige Verluste).</p>
+</section>
+</section>
+<section id="vorhersage" class="level1">
+<h1>Vorhersage</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>neu <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">alter =</span> <span class="st">"bis 49 Jahre"</span>, <span class="at">umsatz =</span> <span class="st">"&gt;= 10 Mrd."</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(modell, neu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] Gewinn
+Levels: Gewinn Verlust</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(modell, neu, <span class="at">type =</span> <span class="st">"raw"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        Gewinn   Verlust
+[1,] 0.8816705 0.1183295</code></pre>
+</div>
+</div>
+<p>Für ein Unternehmen mit einem CEO unter 49 Jahren und einem Umsatz von ≥ 10 Mrd. prognostiziert das Modell mit einer Wahrscheinlichkeit von 88% einen Gewinn. Die Wahrscheinlichkeit für einen Verlust liegt nur bei 12%.</p>
+<p>Das Modell bewertet in diesem Fall die Kombination aus jungem CEO und hohem Umsatz als klar gewinnträchtig.</p>
+</section>
+<section id="fazit" class="level1">
+<h1>Fazit</h1>
+<p>Die Analyse zeigt, dass sich das Unternehmensergebnis teilweise durch Alter und Umsatz vorhersagen lässt. Besonders der Umsatz hat einen deutlichen Einfluss auf die Erfolgswahrscheinlichkeit. Der Doubledecker-Plot verdeutlicht den gemeinsamen Einfluss beider Prädiktoren.</p>
+<p>Das Modell eignet sich gut zur Identifikation von Gewinnunternehmen, weist jedoch klare Schwächen bei der Erkennung von Verlusten auf, insbesondere aufgrund der unausgeglichenen Klassenverteilung. Verbesserungen wären beispielsweise durch Oversampling, die Anpassung der Klassengewichte oder den Einsatz alternativer Klassifikationsverfahren möglich.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
